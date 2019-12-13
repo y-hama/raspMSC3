@@ -16,6 +16,7 @@ namespace DeviceInterface
         private Camera() { }
 
         public bool Streaming { get; set; } = false;
+        public int StreamingInterval { get; set; } = 0;
 
         private VideoCapture capture { get; set; }
 

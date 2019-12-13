@@ -45,9 +45,9 @@ namespace raspMSC3.IF
 
         private static Communication.Command CameraTaskStart(Communication.Command command)
         {
+            DeviceInterface.Camera.Interface.StreamingInterval = command.ParameterCount > 0 ? Convert.ToInt32(command.Parameter[0]) : 0;
             if (!DeviceInterface.Camera.Interface.Streaming)
             {
-                int interval = command.ParameterCount > 0 ? Convert.ToInt32(command.Parameter[0]) : 0;
                 DeviceInterface.Camera.Interface.Streaming = true;
                 new Task(() =>
                 {
@@ -62,7 +62,7 @@ namespace raspMSC3.IF
                             IF.Instance.Com.Send(Communication.Command.Create("resim", framebuffer, ch, w, h));
 
                             temporary = DateTime.Now;
-                            double sleeptime = interval - (temporary - stamp).TotalMilliseconds;
+                            double sleeptime = DeviceInterface.Camera.Interface.StreamingInterval - (temporary - stamp).TotalMilliseconds;
                             if (sleeptime > 0)
                             {
                                 System.Threading.Thread.Sleep((int)sleeptime);

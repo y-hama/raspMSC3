@@ -92,7 +92,7 @@ namespace MSCController.Model
             if (NextFilterWorking) { return; }
             NextFilterWorking = true;
             nextfiltercompleted_NextFilter = false;
-            IF.Instance.Com.Send(Communication.Command.Create("camstart", null, 200));
+            IF.Instance.Com.Send(Communication.Command.Create("camstart", null, 500));
 
             IF.Instance.Com.Send(Communication.Command.CreateWithResponse("filtnext", com_FiltNextCompleterd_NextFilter, null, 1, 32, 50, 2));
             while (!nextfiltercompleted_NextFilter) { System.Threading.Thread.Sleep(50); if (!NextFilterWorking) { break; } }
@@ -131,7 +131,7 @@ namespace MSCController.Model
             if (AdjustFilterWorking) { return; }
             AdjustFilterWorking = true;
             adjustfiltercompleted_AdjustFilter = false;
-            IF.Instance.Com.Send(Communication.Command.Create("camstart", null, 200));
+            IF.Instance.Com.Send(Communication.Command.Create("camstart", null, 500));
 
             IF.Instance.Com.Send(Communication.Command.CreateWithResponse("filtadjust", com_AdjustFilterCompleterd_AdjustFilter, null, 1, 32, 50, 2));
             while (!adjustfiltercompleted_AdjustFilter) { System.Threading.Thread.Sleep(50); if (!AdjustFilterWorking) { break; } }
