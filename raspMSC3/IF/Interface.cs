@@ -61,7 +61,6 @@ namespace raspMSC3.IF
                             DeviceInterface.Camera.Interface.GetFrameBuffer(out framebuffer, out ch, out w, out h);
                             IF.Instance.Com.Send(Communication.Command.Create("resim", framebuffer, ch, w, h));
 
-                            Display.Console.WriteLine(DisplayMode.Debug, framebuffer.Length.ToString());
                             temporary = DateTime.Now;
                             double sleeptime = interval - (temporary - stamp).TotalMilliseconds;
                             if (sleeptime > 0)
