@@ -1,0 +1,21 @@
+﻿<?xml version='1.0' encoding='utf-8'?>
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="Communication.Properties" GeneratedClassName="Settings">
+  <Profiles />
+  <Settings>
+    <Setting Name="PC_Address" Type="System.String" Scope="User">
+      <Value Profile="(Default)">192.168.32.200</Value>
+    </Setting>
+    <Setting Name="Pi_Address" Type="System.String" Scope="User">
+      <Value Profile="(Default)">192.168.32.100</Value>
+    </Setting>
+    <Setting Name="PortA" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">50000</Value>
+    </Setting>
+    <Setting Name="PortB" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">50001</Value>
+    </Setting>
+    <Setting Name="localhost" Type="System.String" Scope="User">
+      <Value Profile="(Default)">127.0.0.1</Value>
+    </Setting>
+  </Settings>
+</SettingsFile>
