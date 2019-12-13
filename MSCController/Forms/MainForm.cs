@@ -40,7 +40,8 @@ namespace MSCController.Forms
             {
                 latestimage = frame;
             }
-            elipsedtime = (DateTime.Now - stamp).TotalMilliseconds;
+            double rho = 0.99;
+            elipsedtime = rho * elipsedtime + (1 - rho) * (DateTime.Now - stamp).TotalMilliseconds;
             stamp = DateTime.Now;
         }
 
