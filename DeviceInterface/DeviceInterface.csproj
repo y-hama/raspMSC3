@@ -91,6 +91,7 @@
     <Compile Include="GPIO.cs" />
     <Compile Include="Motor.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SystemMonitor.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Display\Display.csproj">

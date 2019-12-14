@@ -26,12 +26,10 @@ namespace raspMSC3
             try
             #endregion
             {
-                Display.Console.WriteLine(DisplayMode.System01, AppDomain.CurrentDomain.FriendlyName.Split('.')[0]);
-                Display.Console.WriteLine(DisplayMode.System02, "MachineName : {0}", Environment.MachineName.ToString());
-                Display.Console.WriteLine(DisplayMode.System03, "OSVersion   : {0}", Environment.OSVersion.ToString());
 
                 Display.Console.WriteLine(DisplayMode.ApplicationStatus, "Device Initialize");
                 #region Device
+                DeviceInterface.SystemMonitor.Interface.Initialize();
                 DeviceInterface.Filter.Interface.Initialize();
                 DeviceInterface.Camera.Interface.Initialize();
                 #endregion

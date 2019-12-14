@@ -7,9 +7,9 @@ using System.Threading.Tasks;
 public enum DisplayMode
 {
     Debug,
-    System01,
-    System02,
-    System03,
+    MachineProperty,
+    CurrentDomainProperty,
+    SystemStatus,
     ApplicationStatus,
     CommunicationState,
     CommunicationError,
@@ -41,9 +41,9 @@ static class DisplayCore
     public static List<DisplaySet> ItemSet { get; private set; } = new List<DisplaySet>()
     {
         new DisplaySet(DisplayMode.Debug,                               "  dbgmsg", 1),
-        new DisplaySet(DisplayMode.System01,                            "        ", 2),
-        new DisplaySet(DisplayMode.System02,                            "        ", 3),
-        new DisplaySet(DisplayMode.System03,                            "        ", 4),
+        new DisplaySet(DisplayMode.MachineProperty,                     "  mcprop", 2),
+        new DisplaySet(DisplayMode.CurrentDomainProperty,               "  domain", 3),
+        new DisplaySet(DisplayMode.SystemStatus,                        "     sys", 4),
         new DisplaySet(DisplayMode.ApplicationStatus,                   "   appst", 5),
         new DisplaySet(DisplayMode.CommunicationState,                  "   comst", 6),
         new DisplaySet(DisplayMode.CommunicationError,                  "   comer", 7),
