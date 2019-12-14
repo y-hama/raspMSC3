@@ -32,21 +32,23 @@ namespace DeviceInterface
 #if DEBUG
 
 #else
-                    using (FileStream fs = new FileStream(tmppath, FileMode.Open, FileAccess.ReadWrite, FileShare.ReadWrite))
-                    {
-                        var sr = new StreamReader(fs, Encoding.UTF8);
+                        using (FileStream fs = new FileStream(tmppath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
                         {
-                            tmpv = sr.ReadLine();
+                            var sr = new StreamReader(fs, Encoding.UTF8);
+                            {
+                                tmpv = sr.ReadLine();
+                            }
                         }
-                    }
+
+                        tmpv = ((double)Convert.ToInt32(tmpv) / 1000).ToString();
 #endif
-                        Display.Console.WriteLine(DisplayMode.SystemStatus, "cputemp({0})", tmpv);
+                        Display.Console.WriteLine(DisplayMode.SystemStatus, "cputemp({0}℃)", tmpv);
                     }
                     catch (Exception)
                     {
-
+                        Display.Console.WriteLine(DisplayMode.SystemStatus, "cputemperr({0})", "err");
                     }
-                    System.Threading.Thread.Sleep(1000);
+                    System.Threading.Thread.Sleep(100);
 
                 }
             }).Start();

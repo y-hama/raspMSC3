@@ -100,7 +100,7 @@ namespace DeviceInterface.Define
                         {
                             string v = "-1";
                             string vpath = string.Format(VALUE_FORMAT, ID);
-                            using (FileStream fs = new FileStream(vpath, FileMode.Open, FileAccess.ReadWrite, FileShare.ReadWrite))
+                            using (FileStream fs = new FileStream(vpath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
                             {
                                 var sr = new StreamReader(fs, Encoding.UTF8);
                                 {
