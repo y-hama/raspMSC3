@@ -30,7 +30,7 @@ namespace DeviceInterface
                     try
                     {
 #if DEBUG
-
+                        tmpv = "no device";
 #else
                         using (FileStream fs = new FileStream(tmppath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
                         {
@@ -40,9 +40,9 @@ namespace DeviceInterface
                             }
                         }
 
-                        tmpv = ((double)Convert.ToInt32(tmpv) / 1000).ToString();
+                        tmpv = ((double)Convert.ToInt32(tmpv) / 1000).ToString() + "℃";
 #endif
-                        Display.Console.WriteLine(DisplayMode.SystemStatus, "cputemp({0}℃)", tmpv);
+                        Display.Console.WriteLine(DisplayMode.SystemStatus, "cputemp({0})", tmpv);
                     }
                     catch (Exception)
                     {
