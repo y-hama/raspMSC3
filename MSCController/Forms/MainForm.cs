@@ -21,8 +21,8 @@ namespace MSCController.Forms
             Model.Sequence.Interface.AdjustFilterFinished += FilterActionCompleted;
             Model.Sequence.Interface.MoveFilterFinished += FilterActionCompleted;
             Model.Sequence.Interface.TakeFrameFinished += FilterActionCompleted;
+            Model.Sequence.Interface.TakeFrameStepCompleted += Interface_TakeFrameStepCompleted; ;
 
-            Model.Sequence.Interface.StartMonitor();
         }
 
         private void ConrtollerDisable()
@@ -115,7 +115,13 @@ namespace MSCController.Forms
                 return;
             }
             ControllStatusMessage = "TakeFrame Working.";
+            ConrtollerDisable();
             Model.Sequence.Interface.StartTakeFrame();
+        }
+
+        private void Interface_TakeFrameStepCompleted(int stepnum)
+        {
+            ControllStatusMessage = "TakeFrame Working. Completed => " + stepnum.ToString();
         }
     }
 }

@@ -30,24 +30,25 @@ namespace MSCController.Model
         private int SideLimit { get; set; } = 60;
         private int SideArea { get; set; } = 3;
 
-        private int BaseFrameRate { get; set; } = 20;
+        private const int INITIALRATE = 25;
+        private int BaseFrameRate { get; set; } = INITIALRATE;
 
         public void StopFilter()
         {
-            if (TakeFrameWorking || MoveFilterWorking || AdjustFilterWorking)
-            {
-                IF.Instance.Com.Send(Communication.Command.CreateWithResponse("filtterm", com_FiltNextCompleterd_TakeFrame, null));
-            }
+            IF.Instance.Com.Send(Communication.Command.CreateWithResponse("filtterm", com_StopFilterCompleted, null));
+        }
+
+        private void com_StopFilterCompleted(Communication.Command command)
+        {
             TakeFrameWorking = false;
             MoveFilterWorking = false;
             AdjustFilterWorking = false;
         }
-
         #region  Monitor
 
-        public void StartMonitor()
+        public void StartMonitor(int rate = INITIALRATE)
         {
-            IF.Instance.Com.Send(Communication.Command.Create("camstart", null, (int)(1000 / BaseFrameRate)));
+            IF.Instance.Com.Send(Communication.Command.Create("camstart", null, (int)(1000 / rate)));
         }
         private bool camStopCompleted { get; set; }
         public void StopMonitor()
@@ -80,6 +81,14 @@ namespace MSCController.Model
             remove { TakeFrameSequenceFinishedHandler = value; }
         }
 
+        public delegate void StepCompletedEventHandler(int stepnum);
+        private StepCompletedEventHandler TakeFrameStepCompletedHandler;
+        public event StepCompletedEventHandler TakeFrameStepCompleted
+        {
+            add { TakeFrameStepCompletedHandler = value; }
+            remove { TakeFrameStepCompletedHandler = value; }
+        }
+
         public void StartTakeFrame(int framecount = 16)
         {
             FrameCount = framecount;
@@ -100,15 +109,13 @@ namespace MSCController.Model
                 IF.Instance.Com.Send(Communication.Command.CreateWithResponse("filtnext", com_FiltNextCompleterd_TakeFrame, null, (int)MoveDirection.Forwerd, 32, SideLimit, SideArea));
                 while (!nextfiltercompleted_TakeFrame) { System.Threading.Thread.Sleep(50); if (!TakeFrameWorking) { break; } }
 
-                if (!TakeFrameWorking)
-                {
-                    IF.Instance.Com.Send(Communication.Command.CreateWithResponse("filtterm", com_FiltNextCompleterd_TakeFrame, null));
-                    while (!nextfiltercompleted_TakeFrame) { System.Threading.Thread.Sleep(50); }
-                }
-
-                StartMonitor();
+                StartMonitor(BaseFrameRate);
                 System.Threading.Thread.Sleep(500);
-                Imaging.Event.Interface.AddLatestFrame();
+                if (TakeFrameWorking)
+                {
+                    Imaging.Event.Interface.AddLatestFrame();
+                    TakeFrameStepCompletedHandler?.Invoke(FrameCount - filternum);
+                }
                 filternum--;
             }
             TakeFrameSequenceFinishedHandler?.Invoke(!TakeFrameWorking, Action.TalkeFrame);
@@ -144,18 +151,12 @@ namespace MSCController.Model
             if (MoveFilterWorking) { return; }
             MoveFilterWorking = true;
             moveFiltercompleted_NextFilter = false;
-            IF.Instance.Com.Send(Communication.Command.Create("camstart", null, (int)(1000 / (BaseFrameRate / 2))));
+            StartMonitor(BaseFrameRate / 10);
 
             IF.Instance.Com.Send(Communication.Command.CreateWithResponse("filtnext", com_FiltMoveCompleterd_NextFilter, null, (int)movefilter_Direction, 32, SideLimit, SideArea));
             while (!moveFiltercompleted_NextFilter) { System.Threading.Thread.Sleep(50); if (!MoveFilterWorking) { break; } }
 
-            if (!MoveFilterWorking)
-            {
-                IF.Instance.Com.Send(Communication.Command.CreateWithResponse("filtterm", com_FiltMoveCompleterd_NextFilter, null));
-                while (!moveFiltercompleted_NextFilter) { System.Threading.Thread.Sleep(50); }
-            }
-
-            StartMonitor();
+            StartMonitor(BaseFrameRate);
             MoveFilterSequenceFinishedHandler?.Invoke(!MoveFilterWorking, Action.MoveFilter);
             MoveFilterWorking = false;
         }
@@ -188,18 +189,12 @@ namespace MSCController.Model
             if (AdjustFilterWorking) { return; }
             AdjustFilterWorking = true;
             adjustfiltercompleted_AdjustFilter = false;
-            IF.Instance.Com.Send(Communication.Command.Create("camstart", null, (int)(1000 / (BaseFrameRate / 2))));
+            StartMonitor(BaseFrameRate / 10);
 
             IF.Instance.Com.Send(Communication.Command.CreateWithResponse("filtadjust", com_AdjustFilterCompleterd_AdjustFilter, null, (int)MoveDirection.Forwerd, 32, SideLimit, SideArea));
             while (!adjustfiltercompleted_AdjustFilter) { System.Threading.Thread.Sleep(50); if (!AdjustFilterWorking) { break; } }
 
-            if (!AdjustFilterWorking)
-            {
-                IF.Instance.Com.Send(Communication.Command.CreateWithResponse("filtterm", com_AdjustFilterCompleterd_AdjustFilter, null));
-                while (!adjustfiltercompleted_AdjustFilter) { System.Threading.Thread.Sleep(50); }
-            }
-
-            IF.Instance.Com.Send(Communication.Command.Create("camstart", null));
+            StartMonitor(BaseFrameRate);
             AdjustFilterSequenceFinishedHandler?.Invoke(!AdjustFilterWorking, Action.AdjustFIlter);
             AdjustFilterWorking = false;
         }

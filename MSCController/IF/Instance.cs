@@ -23,9 +23,10 @@ namespace MSCController.IF
             distaddr = Communication.Core.LocalHost_Address;
 #else
             srcaddr = Communication.Core.PC_Address;
-            distaddr = Communication.Core.Pi_Address; 
+            distaddr = Communication.Core.Pi_Address;
 #endif
             Com = new IF.Interface();
+            Com.Connected += Com_Connected;
             Com.Initialize(srcaddr, distaddr, Communication.Core.PortB, Communication.Core.PortA);
 
             int connectiontrycount = 100;
@@ -40,6 +41,11 @@ namespace MSCController.IF
                 System.Windows.Forms.MessageBox.Show("Failed Connection To Device.");
                 Environment.Exit(0);
             }
+        }
+
+        private static void Com_Connected()
+        {
+            Model.Sequence.Interface.StartMonitor();
         }
 
         public static void KillDebugProcess()

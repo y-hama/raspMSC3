@@ -17,11 +17,12 @@ namespace DeviceInterface
 
         public bool Streaming { get; set; } = false;
         public int StreamingInterval { get; set; } = 0;
+        public double FPS { get { return 1000.0 / elipsedtime; } }
 
         private VideoCapture capture { get; set; }
 
         private DateTime timestamp { get; set; } = DateTime.Now;
-        private double elipsedtime { get; set; }
+        private double elipsedtime { get; set; } = 1000.0;
 
         private object __latestframelock = new object();
         private Mat latestFrame { get; set; } = new Mat();
@@ -87,12 +88,12 @@ namespace DeviceInterface
                 buf = new byte[(int)(mat.Total() * mat.Channels())];
                 Marshal.Copy(mat.Data, buf, 0, buf.Length);
 
-                double rho = 0.9;
+                double rho = Math.Min(1, ((FPS / 50) / 2) + 0.55) - 1E-10;
                 double etm = (DateTime.Now - timestamp).TotalMilliseconds;
                 elipsedtime = rho * elipsedtime + (1 - rho) * etm;
                 timestamp = DateTime.Now;
                 Display.Console.WriteLine(DisplayMode.DeviceCameraState,
-                    "c({0}),w({1}),h({2}) -> {3,5}fps", channels, width, height, Math.Round(1000.0 / elipsedtime, 2));
+                    "c({0}),w({1}),h({2}) -> {3,5}fps", channels, width, height, (int)FPS);
 
             }
             catch (Exception)

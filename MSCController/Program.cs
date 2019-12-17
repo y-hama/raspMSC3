@@ -35,6 +35,10 @@ namespace MSCController
                 IF.Instance.Com.ImageRecieved += Imaging.Event.Interface.ImageRecieved;
                 #endregion
 
+                #region GC
+                new Task(() => { while (true) { GC.Collect(); System.Threading.Thread.Sleep(100); } }).Start();
+                #endregion
+
                 Application.EnableVisualStyles();
                 Application.SetCompatibleTextRenderingDefault(false);
                 Application.Run(new Forms.MainForm());

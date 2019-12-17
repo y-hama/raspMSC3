@@ -14,11 +14,11 @@ namespace Imaging
         private Event() { }
 
         public double FPS { get { return 1000.0 / elipsedtime; } }
-        private double elipsedtime { get; set; } = 0;
+        private double elipsedtime { get; set; } = 1000.0;
         private DateTime stamp { get; set; } = DateTime.Now;
         private void UpdateFPS()
         {
-            double rho = 0.9;
+            double rho = Math.Min(1, ((FPS / 50) / 2) + 0.55) - 1E-10;
             elipsedtime = rho * elipsedtime + (1 - rho) * (DateTime.Now - stamp).TotalMilliseconds;
             stamp = DateTime.Now;
         }

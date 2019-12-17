@@ -30,6 +30,7 @@ namespace Imaging.Image
             }
         }
 
+        public int FrameCount { get { return Frames.Count; } }
 
         public List<Image.Layer.Frame> Frames { get; set; } = new List<Image.Layer.Frame>();
         public void Add(Image.Layer.Frame item)
