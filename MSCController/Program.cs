@@ -32,6 +32,7 @@ namespace MSCController
             {
                 #region Communication
                 IF.Instance.CreateCommunication();
+                IF.Instance.Com.ImageRecieved += Imaging.Event.Interface.ImageRecieved;
                 #endregion
 
                 Application.EnableVisualStyles();

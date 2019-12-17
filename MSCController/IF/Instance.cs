@@ -27,9 +27,19 @@ namespace MSCController.IF
 #endif
             Com = new IF.Interface();
             Com.Initialize(srcaddr, distaddr, Communication.Core.PortB, Communication.Core.PortA);
-#if DEBUG
-            while (!Com.IsConnected) { System.Threading.Thread.Sleep(100); }
-#endif
+
+            int connectiontrycount = 100;
+            while (!Com.IsConnected)
+            {
+                System.Threading.Thread.Sleep(100);
+                connectiontrycount--;
+                if (connectiontrycount == 0) { break; }
+            }
+            if (connectiontrycount == 0)
+            {
+                System.Windows.Forms.MessageBox.Show("Failed Connection To Device.");
+                Environment.Exit(0);
+            }
         }
 
         public static void KillDebugProcess()

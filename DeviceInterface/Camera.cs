@@ -102,7 +102,7 @@ namespace DeviceInterface
             }
         }
 
-        public void GetSideLuminosity(int width, out double top, out double bottom, out double left, out double right)
+        public void GetSideLuminosity(int width, int height, out double top, out double bottom, out double left, out double right)
         {
             Mat frame;
             GetFrame(out frame);
@@ -111,20 +111,26 @@ namespace DeviceInterface
                 Cv2.CvtColor(frame, frame, ColorConversionCodes.BGR2GRAY);
             }
             top = bottom = left = right = 0;
-            for (int i = 0; i < frame.Width; i++)
+            for (int h = 0; h < height; h++)
             {
-                top += frame.Get<byte>(0, i);
-                bottom += frame.Get<byte>(frame.Height - 1, i);
+                for (int i = 0; i < frame.Width; i++)
+                {
+                    top += frame.Get<byte>(h, i);
+                    bottom += frame.Get<byte>(frame.Height - (h + 1), i);
+                }
             }
-            for (int j = 0; j < frame.Height; j++)
+            for (int w = 0; w < width; w++)
             {
-                left += frame.Get<byte>(j, 0);
-                right += frame.Get<byte>(j, frame.Width - 1);
+                for (int j = 0; j < frame.Height; j++)
+                {
+                    left += frame.Get<byte>(j, w);
+                    right += frame.Get<byte>(j, frame.Width - (w + 1));
+                }
             }
-            top /= frame.Width;
-            bottom /= frame.Width;
-            left /= frame.Height;
-            right /= frame.Height;
+            top /= frame.Width * height;
+            bottom /= frame.Width * height;
+            left /= frame.Height * width;
+            right /= frame.Height * width;
         }
     }
 }

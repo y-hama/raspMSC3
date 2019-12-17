@@ -9,7 +9,7 @@ namespace MSCController.IF
     class Interface : Communication.Client
     {
         #region Event
-        public delegate void ImageRecievedEventHandler(System.Drawing.Bitmap frame);
+        public delegate void ImageRecievedEventHandler(byte[] data, int channels, int width, int height);
         protected static ImageRecievedEventHandler ImageRecievedEvent { get; set; }
         public event ImageRecievedEventHandler ImageRecieved
         {
@@ -45,7 +45,7 @@ namespace MSCController.IF
                     h = Convert.ToInt32(command.Parameter[2]);
                     if (ch * w * h == command.Data.Length)
                     {
-                        ImageRecievedEvent?.Invoke(Imaging.Convertor.BufferToBitmap((byte[])command.Data.Clone(), ch, w, h));
+                        ImageRecievedEvent?.Invoke((byte[])command.Data.Clone(), ch, w, h);
                     }
                 }
                 catch (Exception)

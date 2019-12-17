@@ -12,82 +12,110 @@ namespace MSCController.Forms
 {
     public partial class MainForm : Form
     {
-        #region Form
-        private int reccount = 0;
-        private string latestmsg = string.Empty;
-        private string restext = string.Empty;
-
-        private double elipsedtime { get; set; } = 0;
-        private DateTime stamp { get; set; } = DateTime.Now;
-
-        private object __lockobj = new object();
-        Bitmap latestimage { get; set; }
+        private bool Request_ControllerEnable { get; set; }
+        private string ControllStatusMessage { get; set; }
 
         public MainForm()
         {
             InitializeComponent();
-            IF.Instance.Com.DataRecieved += Com_DataRecieved;
-            IF.Instance.Com.ImageRecieved += Com_ImageRecieved;
+            Model.Sequence.Interface.AdjustFilterFinished += FilterActionCompleted;
+            Model.Sequence.Interface.MoveFilterFinished += FilterActionCompleted;
+            Model.Sequence.Interface.TakeFrameFinished += FilterActionCompleted;
 
-            Model.Sequence.Interface.AdjustFilterCompleted += AdjustTaskCompleted;
-
-            IF.Instance.Com.Send(Communication.Command.Create("camstart", null));
+            Model.Sequence.Interface.StartMonitor();
         }
 
-        private void Com_ImageRecieved(Bitmap frame)
+        private void ConrtollerDisable()
         {
-            lock (__lockobj)
+            ControlerPanel.Enabled = false;
+        }
+
+        private void ConrtollerEnable()
+        {
+            Request_ControllerEnable = true;
+        }
+
+        private void FilterActionCompleted(bool isCanceled, Model.Sequence.Action action)
+        {
+            ControllStatusMessage = (action.ToString()) + " finished.";
+            if (isCanceled)
             {
-                latestimage = frame;
+                ControllStatusMessage += "(cancel)";
             }
-            double rho = 0.99;
-            elipsedtime = rho * elipsedtime + (1 - rho) * (DateTime.Now - stamp).TotalMilliseconds;
-            stamp = DateTime.Now;
-        }
+            ConrtollerEnable();
 
-        private void Com_DataRecieved(Communication.Command cmd)
-        {
-            reccount++;
-            latestmsg = cmd.ID;
-        }
-
-        private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
-        {
-
-        }
-
-        private void timer1_Tick(object sender, EventArgs e)
-        {
-            label1.Text = string.Format("{0}({1}fps) : {2}", reccount, (int)(1000.0 / elipsedtime), latestmsg);
-            label2.Text = restext;
-            lock (__lockobj)
+            switch (action)
             {
-                if (latestimage != null)
-                {
-                    pictureBox1.Image = (Bitmap)latestimage.Clone();
-                }
+                case Model.Sequence.Action.TalkeFrame:
+                    {
+                        Imaging.Event.Interface.SaveObject(TakeFileName.Text);
+                    }
+                    break;
+                case Model.Sequence.Action.MoveFilter:
+                    break;
+                case Model.Sequence.Action.AdjustFIlter:
+                    break;
+                default:
+                    break;
             }
         }
 
-        private void button1_Click(object sender, EventArgs e)
+        private void ImageUpdateTimer_Tick(object sender, EventArgs e)
         {
-            new Task(Model.Sequence.Interface.TakeFrameProcessTask).Start();
+            Bitmap bitmap;
+            if (Imaging.Convertor.GetLatestImage(out bitmap, MonitorFrameBox.Width, MonitorFrameBox.Height))
+            {
+                MonitorFrameBox.Image = bitmap;
+            }
+
+            FpsLabel.Text = string.Format("{0}fps", (int)Imaging.Event.Interface.FPS);
+            int w, h, c;
+            Imaging.Convertor.GetLatestImageSize(out c, out w, out h);
+            SizeLabel.Text = string.Format("c:{0}, w:{1}, h:{2}", c, w, h);
+            ControllStatusLabel.Text = ControllStatusMessage;
+
+            if (Request_ControllerEnable)
+            {
+                Request_ControllerEnable = false;
+                ControlerPanel.Enabled = true;
+            }
         }
 
-        private void button2_Click(object sender, EventArgs e)
+        private void MoveNextButton_Click(object sender, EventArgs e)
+        {
+            ControllStatusMessage = "Move Working.";
+            ConrtollerDisable();
+            Model.Sequence.Interface.StartMoveFilter(Model.Sequence.MoveDirection.Forwerd);
+        }
+
+        private void MoveBackButton_Click(object sender, EventArgs e)
+        {
+            ControllStatusMessage = "Move Working.";
+            ConrtollerDisable();
+            Model.Sequence.Interface.StartMoveFilter(Model.Sequence.MoveDirection.Back);
+        }
+
+        private void AdjustButton_Click(object sender, EventArgs e)
+        {
+            ControllStatusMessage = "Adjust Working.";
+            ConrtollerDisable();
+            Model.Sequence.Interface.StartAdjustFilter();
+        }
+
+        private void CanceleButton_Click(object sender, EventArgs e)
         {
             Model.Sequence.Interface.StopFilter();
         }
 
-        private void button3_Click(object sender, EventArgs e)
+        private void TakeFrameButton_Click(object sender, EventArgs e)
         {
-            new Task(Model.Sequence.Interface.AdjustFilterProcessTask).Start();
+            if (TakeFileName.Text == string.Empty)
+            {
+                ControllStatusMessage = "Filename is Empty.";
+                return;
+            }
+            ControllStatusMessage = "TakeFrame Working.";
+            Model.Sequence.Interface.StartTakeFrame();
         }
-
-        private void AdjustTaskCompleted()
-        {
-        }
-        #endregion
-
     }
 }
