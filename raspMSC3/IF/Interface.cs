@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Diagnostics;
 using System.Threading.Tasks;
 
 namespace raspMSC3.IF
@@ -10,6 +11,8 @@ namespace raspMSC3.IF
     {
         protected override void CreateCommandTable()
         {
+            AddCommand(Communication.CommandDefine.CreateDefine("appterm", 0, RequestApplicationTerminate));
+
             AddCommand(Communication.CommandDefine.CreateDefine("reqim", 0, RequestImage));
 
             AddCommand(Communication.CommandDefine.CreateDefine("camstart", 0, CameraTaskStart));
@@ -19,6 +22,19 @@ namespace raspMSC3.IF
             AddCommand(Communication.CommandDefine.CreateDefine("filtnext", 4, FilterNext));
             AddCommand(Communication.CommandDefine.CreateDefine("filtfit", 2, FilterFit));
             AddCommand(Communication.CommandDefine.CreateDefine("filtterm", 0, FilterTerminate));
+        }
+
+        private static Communication.Command RequestApplicationTerminate(Communication.Command command)
+        {
+#if !DEBUG
+            ProcessStartInfo ps = new ProcessStartInfo();
+            ps.FileName = "/usr/bin/sudo";
+            ps.Arguments = "/sbin/shutdown -h now";
+            ps.CreateNoWindow = true;
+            ps.UseShellExecute = false;
+            Process.Start(ps);
+#endif
+            return null;
         }
 
         private static Communication.Command RequestImage(Communication.Command command)

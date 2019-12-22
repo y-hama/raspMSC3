@@ -10,41 +10,49 @@ namespace raspMSC3
     {
         static void Main(string[] args)
         {
-            #region GetMutex
-            string mutexName = "raspMSC3_Device";
-
-            bool createdNew;
-            System.Threading.Mutex mutex =
-                new System.Threading.Mutex(true, mutexName, out createdNew);
-
-            if (createdNew == false)
-            {
-                mutex.Close();
-                return;
-            }
-
             try
-            #endregion
             {
+                #region GetMutex
+                string mutexName = "raspMSC3_Device";
 
-                Display.Console.WriteLine(DisplayMode.ApplicationStatus, "Device Initialize");
-                #region Device
-                DeviceInterface.SystemMonitor.Interface.Initialize();
-                DeviceInterface.Filter.Interface.Initialize();
-                DeviceInterface.Camera.Interface.Initialize();
+                bool createdNew;
+                System.Threading.Mutex mutex =
+                    new System.Threading.Mutex(true, mutexName, out createdNew);
+
+                if (createdNew == false)
+                {
+                    mutex.Close();
+                    return;
+                }
+
+                try
                 #endregion
+                {
 
-                #region Communication
-                IF.Instance.CreateCommunication();
+                    Display.Console.WriteLine(DisplayMode.ApplicationStatus, "Device Initialize");
+                    #region Device
+                    DeviceInterface.SystemMonitor.Interface.Initialize();
+                    DeviceInterface.Filter.Interface.Initialize();
+                    DeviceInterface.Camera.Interface.Initialize();
+                    #endregion
+
+                    #region Communication
+                    IF.Instance.CreateCommunication();
+                    #endregion
+                }
+                #region ReleaseMutex
+                finally
+                {
+                    mutex.ReleaseMutex();
+                    mutex.Close();
+                }
                 #endregion
             }
-            #region ReleaseMutex
-            finally
+            catch (Exception ex)
             {
-                mutex.ReleaseMutex();
-                mutex.Close();
+                Display.Console.WriteLine(DisplayMode.ApplicationStatus, "Error {0}.", ex.Message);
+                throw;
             }
-            #endregion
         }
     }
 }

@@ -12,13 +12,13 @@ namespace Imaging
         public static void GetLatestImageSize(out int channels, out int width, out int height)
         {
             channels = width = height = 0;
-            lock (Storage.Interface.__LatestFrameLock)
+            lock (Storage.Instance.__LatestFrameLock)
             {
-                if (Storage.Interface.LatestFrame != null)
+                if (Storage.Instance.LatestFrame != null)
                 {
-                    channels = Storage.Interface.LatestFrame.Channels;
-                    width = Storage.Interface.LatestFrame.Width;
-                    height = Storage.Interface.LatestFrame.Height;
+                    channels = Storage.Instance.LatestFrame.Property.Channels;
+                    width = Storage.Instance.LatestFrame.Property.Width;
+                    height = Storage.Instance.LatestFrame.Property.Height;
                 }
             }
 
@@ -27,17 +27,17 @@ namespace Imaging
         public static bool GetLatestImage(out System.Drawing.Bitmap bitmap, int width = -1, int height = -1)
         {
             OpenCvSharp.Mat frame = null;
-            lock (Storage.Interface.__LatestFrameLock)
+            lock (Storage.Instance.__LatestFrameLock)
             {
-                if (Storage.Interface.LatestFrame != null)
+                if (Storage.Instance.LatestFrame != null)
                 {
                     frame = new OpenCvSharp.Mat(
-                        Storage.Interface.LatestFrame.Height,
-                        Storage.Interface.LatestFrame.Width,
+                        Storage.Instance.LatestFrame.Property.Height,
+                        Storage.Instance.LatestFrame.Property.Width,
                         OpenCvSharp.MatType.MakeType(OpenCvSharp.MatType.CV_8U,
-                        Storage.Interface.LatestFrame.Channels));
+                        Storage.Instance.LatestFrame.Property.Channels));
 
-                    Marshal.Copy(Storage.Interface.LatestFrame.Buffer, 0, frame.Data, Storage.Interface.LatestFrame.Buffer.Length);
+                    Marshal.Copy(Storage.Instance.LatestFrame.Buffer, 0, frame.Data, Storage.Instance.LatestFrame.Buffer.Length);
                 }
             }
             bool ret = false;

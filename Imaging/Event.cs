@@ -13,6 +13,7 @@ namespace Imaging
         public static Event Interface { get { return instance; } }
         private Event() { }
 
+        #region Property
         public double FPS { get { return 1000.0 / elipsedtime; } }
         private double elipsedtime { get; set; } = 1000.0;
         private DateTime stamp { get; set; } = DateTime.Now;
@@ -22,30 +23,34 @@ namespace Imaging
             elipsedtime = rho * elipsedtime + (1 - rho) * (DateTime.Now - stamp).TotalMilliseconds;
             stamp = DateTime.Now;
         }
+        #endregion
 
+        #region ImageRecieved
         public void ImageRecieved(byte[] data, int channels, int width, int height)
         {
-            lock (Storage.Interface.__LatestFrameLock)
+            lock (Storage.Instance.__LatestFrameLock)
             {
-                Storage.Interface.LatestFrame = new Image.Layer.Frame()
-                { Buffer = data, Channels = channels, Width = width, Height = height };
+                Storage.Instance.LatestFrame = new Image.Layer.Frame()
+                { Buffer = data, Property = new Image.ChannelProperty() { Channels = channels, Width = width, Height = height } };
             }
             UpdateFPS();
         }
+        #endregion
 
+        #region ImageLayer
         public void CreateNewImageObject()
         {
-            Storage.Interface.NewObject();
+            Storage.Instance.NewObject();
         }
         public void AddLatestFrame()
         {
-            Storage.Interface.AddLatestFrameToObject();
+            Storage.Instance.AddLatestFrameToObject();
         }
         public void SaveObject(string filename)
         {
-            Storage.Interface.SaveObject(filename);
+            Storage.Instance.SaveObject(filename);
         }
-
+        #endregion
 
     }
 }

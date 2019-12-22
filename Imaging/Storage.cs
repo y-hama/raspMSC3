@@ -12,15 +12,18 @@ namespace Imaging
     class Storage
     {
         private static Storage instance = new Storage();
-        public static Storage Interface { get { return instance; } }
+        public static Storage Instance { get { return instance; } }
         private Storage() { }
 
         private const string LAYERFILE_EXTENSION = ".mspi";
         private const string LAYERFILE_SAVELOCATION = @"images\";
 
+        #region LatestFrame
         public object __LatestFrameLock { get; set; } = new object();
         public Image.Layer.Frame LatestFrame { get; set; }
+        #endregion
 
+        #region Layer
         private Image.Layer SpectrumLayers { get; set; }
 
         public void NewObject()
@@ -38,15 +41,43 @@ namespace Imaging
 
         public void SaveObject(string filename)
         {
-            if (SpectrumLayers == null) { return; }
+            Save(SpectrumLayers, filename);
+        }
+
+        public void Save(Image.Layer layer, string filename)
+        {
+            if (layer == null) { return; }
             if (!Directory.Exists(LAYERFILE_SAVELOCATION))
             {
                 Directory.CreateDirectory(LAYERFILE_SAVELOCATION);
             }
-            SaveToBinaryFile(SpectrumLayers, LAYERFILE_SAVELOCATION + filename + LAYERFILE_EXTENSION);
+            SaveToBinaryFile(layer, LAYERFILE_SAVELOCATION + filename + LAYERFILE_EXTENSION);
         }
 
-        #region Objectを保存
+        public Image.Layer LoadObject(string filename)
+        {
+            return (Image.Layer)LoadFromBinaryFile(LAYERFILE_SAVELOCATION + filename + LAYERFILE_EXTENSION);
+        }
+
+        public List<string> GetImageNames()
+        {
+            List<string> res = new List<string>();
+            if (!Directory.Exists(LAYERFILE_SAVELOCATION))
+            {
+                Directory.CreateDirectory(LAYERFILE_SAVELOCATION);
+            }
+            foreach (var item in (new DirectoryInfo(LAYERFILE_SAVELOCATION)).GetFiles())
+            {
+                if (item.Extension == LAYERFILE_EXTENSION)
+                {
+                    res.Add(item.Name.Replace(LAYERFILE_EXTENSION, ""));
+                }
+            }
+            return res;
+        }
+        #endregion
+
+        #region SaveObjectMethod
         /// <summary>
         /// オブジェクトの内容をファイルに保存する
         /// </summary>
